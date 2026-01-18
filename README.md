@@ -1,120 +1,86 @@
-AI Community Backend (MVP)
-这是一个基于 Go (Golang) 构建的高性能 AI 学习社区后端服务 MVP (Minimum Viable Product)。
+# AI Community Backend (MVP)
+
+这是一个基于 **Go (Golang)** 构建的高性能 AI 学习社区后端服务 MVP (Minimum Viable Product)。
 
 该项目旨在提供一个轻量级、响应迅速的 API 服务，支持用户发布帖子、进行多级嵌套评论（盖楼），并高效地以树状结构返回评论数据。
 
-📋 目录
-项目简介
+## 📋 目录
+- [项目简介](#-项目简介)
+- [快速开始](#-快速开始)
+- [核心 API 示例](#-核心-api-示例)
+- [技术选型与设计思考](#-技术选型与设计思考)
+  - [为什么选择 Gin 框架？](#1-为什么选择-gin-框架)
+  - [数据库设计](#2-数据库设计)
+  - [核心算法：评论层级查询](#3-核心算法评论层级查询)
+- [当前局限性](#-当前局限性)
+- [百万级用户架构演进](#-百万级用户架构演进)
 
-快速开始
+---
 
-核心 API 示例
+## 🚀 项目简介
 
-技术选型与设计思考
+本项目实现了社区的核心互动功能，重点解决了**无限层级评论**的存储与检索问题。
 
-为什么选择 Gin 框架？
+**主要功能：**
+* 📝 **帖子管理**：发布、查询、删除帖子。
+* 💬 **多级评论**：支持无限层级的“楼中楼”回复（Reply to Reply）。
+* 🌳 **树状返回**：后端自动组装 JSON 树，前端无需递归处理，直接渲染。
+* 📄 **智能分页**：基于“顶级评论（楼主）”进行分页，保证对话上下文完整性。
 
-数据库设计
+**技术栈：**
+* **语言**: Go 1.21+
+* **Web 框架**: Gin
+* **ORM**: GORM
+* **数据库**: SQLite (轻量级，易于部署)
 
-核心算法：评论层级查询
+---
 
-当前局限性
+## 🛠 快速开始
 
-百万级用户架构演进
+### 环境要求
+* Go 1.18 或更高版本
+* Git
 
-🚀 项目简介
-本项目实现了社区的核心互动功能，重点解决了无限层级评论的存储与检索问题。
+### 运行步骤
 
-主要功能：
+1.  **克隆项目**
+    ```bash
+    git clone [https://github.com/YourUsername/ai-community-backend.git](https://github.com/YourUsername/ai-community-backend.git)
+    cd ai-community-backend
+    ```
 
-📝 帖子管理：发布、查询、删除帖子。
+2.  **安装依赖**
+    go mod tidy
 
-💬 多级评论：支持无限层级的“楼中楼”回复（Reply to Reply）。
+3.  **运行服务**
+    go run main.go
+    *服务默认监听在 `:8080` 端口。项目会自动在根目录生成 `community.db` 数据库文件。*
 
-🌳 树状返回：后端自动组装 JSON 树，前端无需递归处理，直接渲染。
+---
 
-📄 智能分页：基于“顶级评论（楼主）”进行分页，保证对话上下文完整性。
+## 📡 核心 API 示例
 
-技术栈：
+以下示例使用 `curl` 命令，你也可以使用 Postman 进行测试。
 
-语言: Go 1.21+
-
-Web 框架: Gin
-
-ORM: GORM
-
-数据库: SQLite (轻量级，易于部署)
-
-🛠 快速开始
-环境要求
-
-Go 1.18 或更高版本
-
-Git
-
-运行步骤
-
-克隆项目
-
-Bash
-git clone https://github.com/YourUsername/ai-community-backend.git
-cd ai-community-backend
-安装依赖
-
-Bash
-go mod tidy
-运行服务
-
-Bash
-go run main.go
-服务默认监听在 :8080 端口。项目会自动在根目录生成 community.db 数据库文件。
-
-📡 核心 API 示例
-以下示例使用 curl 命令，你也可以使用 Postman 进行测试。
-
-1. 发布帖子
-
-Bash
+### 1. 发布帖子
 curl -X POST http://localhost:8080/api/posts \
 -H "Content-Type: application/json" \
 -d '{"title":"AI 社区上线啦", "content":"欢迎大家讨论 Go 语言开发"}'
-2. 发布顶级评论 (楼主)
 
-Bash
+### 2. 发布顶级评论
 curl -X POST http://localhost:8080/api/comments \
 -H "Content-Type: application/json" \
 -d '{"post_id": 1, "content": "前排支持！"}'
-3. 回复某条评论 (构建层级)
 
-假设上一条评论 ID 为 1
-
-Bash
+### 3. 回复某条评论 (构建层级)
 curl -X POST http://localhost:8080/api/comments \
 -H "Content-Type: application/json" \
 -d '{"post_id": 1, "parent_id": 1, "content": "层主说得对 (二级回复)"}'
-4. 获取树状评论列表 (核心功能)
 
-Bash
+### 4. 获取树状评论列表 (核心功能)
 curl "http://localhost:8080/api/posts/1/comments?page=1&page_size=10"
-返回结构示例：
 
-JSON
-{
-  "list": [
-    {
-      "ID": 1,
-      "content": "前排支持！",
-      "children": [
-        {
-          "ID": 2,
-          "content": "层主说得对 (二级回复)",
-          "children": [...]
-        }
-      ]
-    }
-  ],
-  "total": 1
-}
+
 💡 技术选型与设计思考
 1. 为什么选择 Gin 框架？
 
@@ -190,3 +156,4 @@ Filter: 最后只返回 ParentID 为空的节点列表（即顶级评论）。
 使用 Docker + Kubernetes 进行容器化部署与自动扩容。
 
 接入 Nginx 负载均衡。
+
