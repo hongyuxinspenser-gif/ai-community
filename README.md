@@ -81,7 +81,7 @@ curl -X POST http://localhost:8080/api/comments \
 curl "http://localhost:8080/api/posts/1/comments?page=1&page_size=10"
 
 
-## 技术选型与设计思考
+##  技术选型与设计思考
 ### 1. 为什么选择 Gin 框架？
 
 高性能：Gin 基于 httprouter，速度极快，内存占用低，非常适合处理高并发的社区 API。
